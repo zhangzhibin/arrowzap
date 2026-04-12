@@ -1,8 +1,14 @@
 # Cocos Creator 生成与缓存（勿提交）
-build/
 library/
 temp/
 local/
+
+# build/jsb-default：提交 iOS 工程与引擎源码；排除可再生大目录与安装包
+build/jsb-default/publish/
+build/jsb-default/js backups (useful for debugging)/
+build/jsb-default/frameworks/cocos2d-x/build/
+build/jsb-default/frameworks/runtime-src/proj.ios_mac/build/
+**/xcuserdata/
 
 # 系统与编辑器
 .DS_Store
