@@ -46,8 +46,6 @@ var def_LYWinLayer = function (t) {
     var t = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
     this.lbTl.string = "+" + t;
     $9AppMain.default.localData.level += 1;
-    $9AppMain.default.localData.hearts += t;
-    $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.UPDATE_HEART);
     $9GameManager$$1.default.instance.enterGameCount += 1;
   };
   _ctor.prototype.onDisable = function () {
@@ -70,15 +68,6 @@ var def_LYWinLayer = function (t) {
     if (!(2 != $9GameManager$$1.default.instance.enterGameCount || $9GameManager$$1.default.instance.isPopup)) {
       $9GameManager$$1.default.instance.isPopup = true;
       $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.CHECK_WHATS_NEW);
-    }
-    if ($9LYsdkConfig.default.instance.getConfigValByKeyName("front_is_enable_level_power", true)) {
-      var t = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
-      if ($9AppMain.default.localData.hearts < t) {
-        return void $9AppMain.default.UIManager.open($9Enum.ENUM_UI_TYPE.POWER, null, $9Enum.BUNDLE_NAME.LYFRAME);
-      }
-      var e = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
-      $9AppMain.default.localData.hearts -= e;
-      $9AppMain.default.teoastManager.show("体力-" + e);
     }
     this.close(true);
     $9GameManager$$1.default.instance.exitGame();

@@ -3,19 +3,19 @@ Object.defineProperty(exports, "__esModule", {
 });
 var o = function () {
   function t() {
-    this._kaidian_guide = 0;
+    this._CCG_Guide = 0;
     var t = Object.keys(this);
     for (var e = 0; e < t.length; e++) {
       "_" == t[e][0] && this.getData(t[e]);
     }
   }
-  Object.defineProperty(t.prototype, "kaidian_guide", {
+  Object.defineProperty(t.prototype, "CCG_Guide", {
     get: function () {
-      return this._kaidian_guide;
+      return this._CCG_Guide;
     },
     set: function (t) {
-      this._kaidian_guide = t;
-      this.saveData("_kaidian_guide", t);
+      this._CCG_Guide = t;
+      this.saveData("_CCG_Guide", t);
     },
     enumerable: false,
     configurable: true

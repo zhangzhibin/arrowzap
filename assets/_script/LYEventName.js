@@ -30,7 +30,6 @@ exports.LYEventName = undefined;
   t.RESUME_TIME = "resume_time";
   t.ADD_SCORE = "add_score";
   t.ERROR_LINE = "error_line";
-  t.UPDATE_HEART = "update_heart";
   t.LEVEL_START = "level_start";
   t.CREATE_LINE = "create_line";
   t.CREATE_EMOJI = "create_emoji";

@@ -69,9 +69,7 @@ var def_LYLoseLayer = function (t) {
     var t = this;
     $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.SHOW_VIDEO_AD, [function () {
       if (1 == t.curType) {
-        $9GameManager$$1.default.instance.updateHeart(1);
-        $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.BREAK_HEART);
-        $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.RESUME_TIME);
+        $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.RECOVER_GAME);
       } else {
         $9GameManager$$1.default.instance.timeNum = 120;
         $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.UPDATE_TIME);

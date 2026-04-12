@@ -144,89 +144,6 @@ var def_Https = function () {
       });
     });
   };
-  _ctor.prototype.wxLogin = function () {
-    if (!window.wx) {
-      $9AppMain.default.teoastManager.show("请在微信环境下登录");
-      return void (this.comData.openId = "o7coS5kY5_2fRkYHE8NNBhHsU-xM");
-    }
-    this.comData.app_key = this.app_key;
-    var t = this;
-    return new Promise(function (e) {
-      window.wx.login({
-        success: function (n) {
-          if (n.code) {
-            window.wx.request({
-              url: "https://api.junmeishiye.cn/wechat/game/login",
-              data: {
-                app_key: t.app_key,
-                code: n.code
-              },
-              success: function (n) {
-                console.log("data", n.data);
-                $9GameConfig.default.openId = n.data.data;
-                t.openId = n.data.data;
-                t.comData.openId = $9GameConfig.default.openId;
-                e(true);
-              },
-              fail: function () {
-                e(false);
-              }
-            });
-          } else {
-            e(false);
-            console.log("登录失败！" + n.errMsg);
-          }
-        }
-      });
-    });
-  };
-  _ctor.prototype.getWxUserInfo = function () {
-    var t = window.wx;
-    if (!t) {
-      console.warn("请在微信环境下登录");
-      return false;
-    }
-    var e = this;
-    return new Promise(function (n) {
-      t.getSetting({
-        success: function (t) {
-          if (t.authSetting["scope.userInfo"]) {
-            n(false);
-          } else {
-            e.wxAuthorize(n);
-          }
-        }
-      });
-    });
-  };
-  _ctor.prototype.wxAuthorize = function (t) {
-    var e = window.wx;
-    if (e) {
-      var n = this;
-      e.authorize({
-        scope: "scope.userInfo",
-        success: function () {
-          e.getUserInfo({
-            success: function (e) {
-              n._userInfo = e.userInfo;
-              var o = {
-                avatarUrl: e.userInfo.avatarUrl,
-                nickName: e.userInfo.nickName,
-                gender: e.userInfo.gender
-              };
-              cc.sys.localStorage.setItem("wxUserInfo", JSON.stringify(o));
-              console.log("玩家信息::", n._userInfo);
-              t(e.userInfo);
-            }
-          });
-        },
-        fail: function () {
-          t(false);
-          console.log("授权失败");
-        }
-      });
-    }
-  };
   Object.defineProperty(_ctor.prototype, "userInfo", {
     get: function () {
       return this._userInfo;
@@ -236,24 +153,9 @@ var def_Https = function () {
   });
   _ctor.prototype.saveUserServer = function () {
     return cc__awaiter(this, undefined, undefined, function () {
-      var t;
       return cc__generator(this, function (e) {
-        switch (e.label) {
-          case 0:
-            return [4, this.getWxUserInfo()];
-          case 1:
-            t = e.sent();
-            if (t) {
-              this.post("https://api.junmeishiye.cn/wechat/game/user/info", {
-                app_key: this.app_key,
-                open_id: $9GameConfig.default.openId,
-                avatarUrl: t.avatarUrl,
-                nickName: t.nickName,
-                gender: t.gender
-              });
-            }
-            return [2];
-        }
+        // WeChat user info saving removed
+        return [2];
       });
     });
   };

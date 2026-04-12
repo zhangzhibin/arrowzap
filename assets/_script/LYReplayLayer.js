@@ -54,15 +54,6 @@ var def_LYReplayLayer = function (t) {
   };
   _ctor.prototype.handleCXKS = function () {
     $9AppMain.default.soundManager.playClickSound();
-    if ($9LYsdkConfig.default.instance.getConfigValByKeyName("front_is_enable_level_power", true)) {
-      var t = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
-      if ($9AppMain.default.localData.hearts < t) {
-        return void $9AppMain.default.UIManager.open($9Enum.ENUM_UI_TYPE.POWER, null, $9Enum.BUNDLE_NAME.LYFRAME);
-      }
-      var e = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
-      $9AppMain.default.localData.hearts -= e;
-      $9AppMain.default.teoastManager.show("体力-" + e);
-    }
     this.close(true);
     $9GameManager$$1.default.instance.exitGame();
     $9GameManager$$1.default.instance.initGame();

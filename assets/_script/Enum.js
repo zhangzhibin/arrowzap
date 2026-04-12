@@ -28,11 +28,9 @@ exports.POPULAR_TRIGGER_SOURCE = exports.GameStatu = exports.BUNDLE_NAME = expor
   t.HOT_GAME = "LYHotGameLayer";
   t.LUCK = "LYLuckBoxLayer";
   t.LOSE = "LYLoseLayer";
-  t.POWER = "LYPowerLayer";
   t.REPLAY = "LYReplayLayer";
   t.WIN = "LYWinLayer";
   t.DESK = "LYDeskLayer";
-  t.AWARD = "LYAwardLayer";
 })(exports.ENUM_UI_TYPE || (exports.ENUM_UI_TYPE = {}));
 (function (t) {
   t.MENU = "GameMenu";

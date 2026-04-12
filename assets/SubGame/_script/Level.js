@@ -45,6 +45,7 @@ var def_Level = function (t) {
     e._passCount = 0;
     e.isStart = false;
     e.startTime = false;
+    e.canInteract = true;
     return e;
   }
   cc__extends(_ctor, t);
@@ -64,19 +65,10 @@ var def_Level = function (t) {
   });
   _ctor.prototype.onEnable = function () {
     this.initLevel();
-    this.updateUI();
     this.addEvent("on");
   };
   _ctor.prototype.onDisable = function () {
     this.addEvent("off");
-  };
-  _ctor.prototype.updateUI = function () {
-    if (1 == $9AppMain.default.localData.level) {
-      this.maxNode.scale = 1.5;
-      this.scheduleOnce(function () {
-        $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.UPDATE_SLIDE, .5);
-      }, .1);
-    }
   };
   _ctor.prototype.initLevel = function () {
     var t = this;
@@ -92,13 +84,16 @@ var def_Level = function (t) {
         this.posList.push(new cc.Vec2(c, s));
       }
       this.levelData = JSON.parse(e.levelData);
+      this.canInteract = true;
       this.passCount = 0;
+      this.updateBoardScale();
       var l = function (e) {
         h.scheduleOnce(function () {
           var n = t.levelData[e];
           var i = cc.instantiate(t.linePrefab);
           i.parent = t.list;
           i.name = e.toString();
+          console.log("[Level.initLevel] Creating line " + e + " with segments:", n);
           i.getComponent($9Line.default).setData(n, t.posList);
         }, .02 * e);
       };
@@ -117,6 +112,7 @@ var def_Level = function (t) {
     $9AppMain.default.eventManager[t]($9LYEventName.LYEventName.ADD_SCORE, this.handleAddScore, this);
     $9AppMain.default.eventManager[t]($9LYEventName.LYEventName.ERROR_LINE, this.handleErrorLine, this);
     $9AppMain.default.eventManager[t]($9LYEventName.LYEventName.CREATE_LINE, this.handleCreateLine, this);
+    $9AppMain.default.eventManager[t]($9LYEventName.LYEventName.RECOVER_GAME, this.recoverGame, this);
   };
   _ctor.prototype.handleCreateLine = function () {
     this.createLineNum++;
@@ -143,7 +139,25 @@ var def_Level = function (t) {
     $9AppMain.default.soundManager.playSound("sound/" + t, false, $9Enum.BUNDLE_NAME.LYFRAME);
   };
   _ctor.prototype.handleScale = function (t) {
-    this.maxNode.scale = 1 + t;
+    this.maxNode.scale = this.minScale + t * (this.maxScale - this.minScale);
+  };
+  _ctor.prototype.updateBoardScale = function () {
+    var t = $9GameManager$$1.default.instance.curLevelConfig;
+    if (!t) return;
+    var e = this.maxNode;
+    if (!e) return;
+    var n = $9GameManager$$1.default.instance.pointWidth;
+    var i = (t.width + 2) * n;
+    var o = (t.height + 2) * n;
+    var r = e.parent;
+    if (!r || r.width <= 0 || r.height <= 0) return;
+    var a = r.width / i;
+    var c = r.height / o;
+    var s = Math.min(a, c);
+    e.scale = s;
+    this.minScale = s * 0.5;
+    this.maxScale = s * 2.5;
+    e.setPosition(cc.v2(0, 0));
   };
   _ctor.prototype.handleStart = function (t) {
     this.isMove = false;
@@ -186,7 +200,6 @@ var def_Level = function (t) {
       if (this.pinchStartDist > 0) {
         var c = cc.misc.clampf(this.pinchStartScale * (a / this.pinchStartDist), this.minScale, this.maxScale);
         this.maxNode.scale = c;
-        $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.UPDATE_SLIDE, 2 - this.maxNode.scale);
       }
       this.isMove = true;
     } else {
@@ -220,50 +233,102 @@ var def_Level = function (t) {
       }
     }
   };
+  _ctor.prototype._findArrowAtPoint = function (cellX, cellY) {
+    // 找到点击位置对应的单元格索引
+    var n = $9GameManager$$1.default.instance.curLevelConfig.width;
+    var cellIndex = cellY * n + cellX;
+
+    // 查找哪个箭头包含这个单元格
+    for (var i = 0; i < this.levelData.length; i++) {
+      var lineNode = this.list.getChildByName(i.toString());
+      if (!lineNode) continue;
+      var lineComp = lineNode.getComponent($9Line.default);
+      if (!lineComp || lineComp.isOver || lineComp.flying || lineComp.isMoveing) continue;
+
+      // 检查这个箭头是否包含这个单元格
+      if (this.levelData[i].indexOf(cellIndex) !== -1) {
+        return i;
+      }
+    }
+    return -1;
+  };
+  _ctor.prototype._handleArrowByIndex = function (t) {
+    var e;
+    var n = this.list.getChildByName(t.toString());
+    if (!n) return;
+    var i = n.getComponent($9Line.default);
+    if (!i || i.isOver || i.flying || i.isMoveing) return;
+    i.canFlyOut = this.canArrowFly(t);
+    i.flying = true;
+    var o = this.levelData[t];
+    var r = i.dir;
+    var a = this.getForwardIndices(o[0], r);
+    var c = this.findFirstBlockedPointWithFlying(a, t);
+    if (-1 !== c.idx) {
+      var s = a.indexOf(c.idx);
+      var l = a.slice(0, s + 1);
+      i.handleError(l, c);
+      var h = this.list.getChildByName(c.listIndex.toString());
+      if (h) {
+        var u = h.getComponent($9Line.default);
+        if (u) u.errorLine();
+      }
+    } else {
+      this.createPoint(i.itemList);
+      i.handlePass();
+    }
+  };
   _ctor.prototype.handleEnd = function (t) {
     var e;
     this.pinchActive = false;
-    if (!this.isMove) {
-      if (this.createLineNum < this.levelData.length) {
-        this.handleTips();
+    console.log("[Level.handleEnd] TOUCH_END in capture phase");
+    // 拖动/缩放时，阻止事件传递到箭头，避免误触
+    if (this.isMove) {
+      console.log("[Level.handleEnd] isMove=true, stopping propagation");
+      t.stopPropagation();
+      return;
+    }
+    if (!this.canInteract) {
+      console.log("[Level.handleEnd] canInteract=false, stopping propagation");
+      t.stopPropagation();
+      return;
+    }
+    if (this.createLineNum < this.levelData.length) {
+      console.log("[Level.handleEnd] not all lines created, stopping propagation");
+      this.handleTips();
+      t.stopPropagation();
+      return;
+    }
+    // Note: Power check is removed from here. It will be done when actually handling an arrow.
+    if (!this.startTime) {
+      this.startTime = true;
+      $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.RESUME_TIME);
+    }
+    var o = t.getLocation();
+    var r = this.list.parent.convertToNodeSpaceAR(o);
+    var centerCell = this.pixelToCellIndex(r.x, r.y);
+    var cellX = centerCell % $9GameManager$$1.default.instance.curLevelConfig.width;
+    var cellY = Math.floor(centerCell / $9GameManager$$1.default.instance.curLevelConfig.width);
+    var a = this.findNearbyFlyableArrow(r.x, r.y, cellX, cellY);
+    console.log("[Level.handleEnd] findNearbyFlyableArrow result:", a);
+    if (!(a < 0)) {
+      // 第一步：找到可飞出的箭头
+      console.log("[Level.handleEnd] flyable arrow found at index:", a);
+      // 阻止事件继续传递，Level 直接处理
+      console.log("[Level.handleEnd] handling arrow and stopping propagation");
+      t.stopPropagation();
+      this._handleArrowByIndex(a);
+    } else {
+      // 第二步：没找到可飞出的箭头，检查是否直接点击了某个箭头
+      console.log("[Level.handleEnd] no flyable arrow found - checking for direct arrow click at cell [" + cellX + "," + cellY + "]");
+      var clickedArrowIndex = this._findArrowAtPoint(cellX, cellY);
+      if (clickedArrowIndex >= 0) {
+        console.log("[Level.handleEnd] direct arrow click detected at index:", clickedArrowIndex);
+        console.log("[Level.handleEnd] handling directly clicked arrow");
+        t.stopPropagation();
+        this._handleArrowByIndex(clickedArrowIndex);
       } else {
-        if ($9LYsdkConfig.default.instance.getConfigValByKeyName("front_is_enable_level_power", true) && !$9GameManager$$1.default.instance.isSubPower) {
-          var n = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
-          if ($9AppMain.default.localData.hearts < n) {
-            return void $9AppMain.default.UIManager.open($9Enum.ENUM_UI_TYPE.POWER, null, $9Enum.BUNDLE_NAME.LYFRAME);
-          }
-          $9GameManager$$1.default.instance.isSubPower = true;
-          var i = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
-          $9AppMain.default.localData.hearts -= i;
-          $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.UPDATE_HEART);
-        }
-        if (!this.startTime) {
-          this.startTime = true;
-          $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.RESUME_TIME);
-        }
-        var o = t.getLocation();
-        o.x -= $9GameManager$$1.default.instance.pointWidth / 2;
-        var r = this.list.parent.convertToNodeSpaceAR(o);
-        var a = this.getNearestLineInfo(r, $9GameManager$$1.default.instance.pointWidth);
-        if (!(a < 0)) {
-          var c = null === (e = this.list.getChildByName(a.toString())) || undefined === e ? undefined : e.getComponent($9Line.default);
-          if (c) {
-            var s = this.levelData[a];
-            var f = c.dir;
-            var g = this.getForwardIndices(s[0], f);
-            var m = this.findFirstBlockedPoint(g, a);
-            if (-1 !== m.idx) {
-              var y = g.indexOf(m.idx);
-              var _ = g.slice(0, y + 1);
-              c.handleError(_, m);
-              var L = this.list.getChildByName(m.listIndex.toString()).getComponent($9Line.default);
-              null == L || L.errorLine();
-            } else {
-              this.createPoint(c.itemList);
-              c.handlePass();
-            }
-          }
-        }
+        console.log("[Level.handleEnd] no arrow clicked, allowing event to propagate");
       }
     }
   };
@@ -291,7 +356,6 @@ var def_Level = function (t) {
     var e = t.getScrollY();
     var n = this.maxNode.scale + (e > 0 ? .1 : -.1);
     this.maxNode.scale = cc.misc.clampf(n, this.minScale, this.maxScale);
-    $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.UPDATE_SLIDE, 2 - this.maxNode.scale);
     this.pinchActive = false;
     this.dragging = false;
   };
@@ -305,6 +369,11 @@ var def_Level = function (t) {
     var r = -1;
     for (var a = 0; a < i.length; a++) {
       var c = i[a];
+      var lineNode = this.list.getChildByName(a.toString());
+      if (lineNode) {
+        var lineComp = lineNode.getComponent($9Line.default);
+        if (lineComp && (lineComp.isOver || lineComp.flying || lineComp.isMoveing)) continue;
+      }
       for (var s = 0; s < c.length - 1; s++) {
         var l = this.posList[c[s]];
         var h = this.posList[c[s + 1]];
@@ -321,6 +390,88 @@ var def_Level = function (t) {
       return r;
     } else {
       return -1;
+    }
+  };
+  _ctor.prototype.pointToRectDistance = function (t, e, n, i) {
+    var o = $9GameManager$$1.default.instance.pointWidth;
+    var r = $9GameManager$$1.default.instance.curLevelConfig.width;
+    var a = $9GameManager$$1.default.instance.curLevelConfig.height;
+    var c = -r / 2 * o;
+    var s = a / 2 * o;
+    var l = n * o + c;
+    var h = l + o;
+    var u = s - i * o;
+    var d = u - o;
+    if (t >= l && t <= h && e >= d && e <= u) {
+      return 0;
+    }
+    var p = Math.max(l - t, 0, t - h);
+    var f = Math.max(d - e, 0, e - u);
+    return Math.sqrt(p * p + f * f);
+  };
+  _ctor.prototype.findNearbyFlyableArrow = function (t, e, n, i) {
+    var o = [];
+    for (var r = -1; r <= 1; r++) {
+      for (var a = -1; a <= 1; a++) {
+        var c = n + a;
+        var s = i + r;
+        var l = $9GameManager$$1.default.instance.curLevelConfig.width;
+        var h = $9GameManager$$1.default.instance.curLevelConfig.height;
+        if (c < 0 || c >= l || s < 0 || s >= h) continue;
+        var u = this.pointToRectDistance(t, e, c, s);
+        for (var d = 0; d < this.levelData.length; d++) {
+          var p = this.list.getChildByName(d.toString());
+          if (!p) continue;
+          var f = p.getComponent($9Line.default);
+          if (!f || f.isOver || f.flying || f.isMoveing) continue;
+          var v = this.levelData[d];
+          var g = s * l + c;
+          if (-1 !== v.indexOf(g)) {
+            if (this.canArrowFly(d)) {
+              o.push({idx: d, dist: u});
+            }
+          }
+        }
+      }
+    }
+    if (o.length === 0) return -1;
+    o.sort(function (t, e) {
+      return t.dist - e.dist;
+    });
+    return o[0].idx;
+  };
+  _ctor.prototype.handleArrowClickedFromLine = function (t, e) {
+    // 箭头本身的点击事件回调
+    console.log("[Level.handleArrowClickedFromLine] called, arrowIndex:", t);
+    if (!this.canInteract) {
+      console.log("[Level.handleArrowClickedFromLine] canInteract=false, returning");
+      return;
+    }
+    if (e.isOver || e.flying || e.isMoveing) {
+      console.log("[Level.handleArrowClickedFromLine] arrow in invalid state, returning");
+      return;
+    }
+    console.log("[Level.handleArrowClickedFromLine] proceeding with collision detection");
+    e.canFlyOut = this.canArrowFly(t);
+    e.flying = true;
+    var n = this.levelData[t];
+    var i = e.dir;
+    var o = this.getForwardIndices(n[0], i);
+    var r = this.findFirstBlockedPointWithFlying(o, t);
+    if (-1 !== r.idx) {
+      console.log("[Level.handleArrowClickedFromLine] collision detected at index:", r.idx);
+      var a = o.indexOf(r.idx);
+      var c = o.slice(0, a + 1);
+      e.handleError(c, r);
+      var s = this.list.getChildByName(r.listIndex.toString());
+      if (s) {
+        var l = s.getComponent($9Line.default);
+        if (l) l.errorLine();
+      }
+    } else {
+      console.log("[Level.handleArrowClickedFromLine] no collision, arrow can pass");
+      this.createPoint(e.itemList);
+      e.handlePass();
     }
   };
   _ctor.prototype.pointSegmentDistance = function (t, e, n) {
@@ -347,6 +498,18 @@ var def_Level = function (t) {
     var v = c - (i + f * l);
     var g = s - (o + f * h);
     return Math.sqrt(v * v + g * g);
+  };
+  _ctor.prototype.pixelToCellIndex = function (t, e) {
+    var n = $9GameManager$$1.default.instance.curLevelConfig.width;
+    var i = $9GameManager$$1.default.instance.curLevelConfig.height;
+    var o = $9GameManager$$1.default.instance.pointWidth;
+    var r = -n / 2 * o;
+    var a = i / 2 * o;
+    var c = Math.floor((t - r) / o);
+    var s = Math.floor((a - e) / o);
+    c = cc.misc.clampf(c, 0, n - 1);
+    s = cc.misc.clampf(s, 0, i - 1);
+    return s * n + c;
   };
   _ctor.prototype.neighborIndex = function (t, e) {
     var n = $9GameManager$$1.default.instance.curLevelConfig.width;
@@ -416,6 +579,44 @@ var def_Level = function (t) {
       idx: -1,
       listIndex: -1
     };
+  };
+  _ctor.prototype.canArrowFly = function (t) {
+    var e = this.levelData[t];
+    var n = this.list.getChildByName(t.toString());
+    if (!n) return false;
+    var i = n.getComponent($9Line.default);
+    var o = this.getForwardIndices(e[0], i.dir);
+    var r = this.findFirstBlockedPointWithFlying(o, t);
+    return -1 === r.idx;
+  };
+  _ctor.prototype.findFirstBlockedPointWithFlying = function (t, e) {
+    undefined === e && (e = -1);
+    for (var n = 0; n < t.length; n++) {
+      var i = t[n];
+      for (var o = 0; o < this.levelData.length; o++) {
+        if (o === e) continue;
+        var r = this.list.getChildByName(o.toString());
+        if (!r) continue;
+        var a = r.getComponent($9Line.default);
+        if (a.isOver) continue;
+        if (a.flying && a.canFlyOut) continue;
+        var c = (a.flying && !a.canFlyOut) ? a.originalItemList : this.levelData[o];
+        if (-1 !== c.indexOf(i)) {
+          return {
+            idx: i,
+            listIndex: o
+          };
+        }
+      }
+    }
+    return {
+      idx: -1,
+      listIndex: -1
+    };
+  };
+  _ctor.prototype.recoverGame = function () {
+    this.canInteract = true;
+    $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.RESUME_TIME);
   };
   cc__decorate([ccp_property(cc.Prefab)], _ctor.prototype, "linePrefab", undefined);
   cc__decorate([ccp_property(cc.Node)], _ctor.prototype, "list", undefined);

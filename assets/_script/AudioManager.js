@@ -10,7 +10,7 @@ var $9Enum = require("Enum");
 var def_AudioManager = function () {
   function _ctor() {
     this.audioSource = null;
-    this.LocalCachKey = "FDC_SETTING";
+    this.LocalCachKey = "CCG_Setting";
     this.soundMap = new Map();
     this.curBgmName = "";
     this._data = {};
@@ -170,10 +170,7 @@ var def_AudioManager = function () {
     0 !== this.vibrateOff && $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.VIBRATE_SHORT);
   };
   _ctor.prototype.vibrateLong = function () {
-    0 !== this.vibrateOff && window.wx && window.wx.vibrateLong({
-      success: function () {},
-      fail: function () {}
-    });
+    0 !== this.vibrateOff && $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.VIBRATE_LONG);
   };
   _ctor._instance = null;
   return _ctor;

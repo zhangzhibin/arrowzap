@@ -5,7 +5,7 @@ var $9LYsdkConfig = require("LYsdkConfig");
 var $9Enum = require("Enum");
 var def_DataManager = function () {
   function _ctor() {
-    this.saveKey = "FindCat_Local";
+    this.saveKey = "CCG_Local";
     this._isMusicOn = true;
     this._isSoundOn = true;
     this._isVibrateOn = false;
@@ -15,21 +15,11 @@ var def_DataManager = function () {
     this.heartRefreshTime = 0;
     this.status = $9Enum.ENUM_GAME_STATUS.UNRUNING;
     this._data = {
-      isAddDesktop: false,
       currDay: new Date(),
-      isFirstShare: true,
       isNewUser: true,
-      levelChildIndex: 0,
-      myLocationIP: -1,
-      shareCount: 0,
       level: 1,
-      isInitData: false,
-      hearts: 0,
-      lastHeartRefreshTime: 0,
-      lastHeartUpdateTime: 0,
-      isAddSelf: false
+      isInitData: false
     };
-    this._shareCount = 0;
   }
   Object.defineProperty(_ctor, "instance", {
     get: function () {
@@ -78,21 +68,9 @@ var def_DataManager = function () {
     enumerable: false,
     configurable: true
   });
-  Object.defineProperty(_ctor.prototype, "myLocationIP", {
-    get: function () {
-      return this._data.myLocationIP;
-    },
-    set: function (t) {
-      this._data.myLocationIP = t;
-      this.saveData();
-    },
-    enumerable: false,
-    configurable: true
-  });
   _ctor.prototype.initConfigData = function () {
     if (!this._data.isInitData) {
       this._data.isInitData = true;
-      this.hearts || (this.hearts = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_power_init_num", 5)));
       this.saveData();
     }
     this.heartRefreshTime = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_enable_time_countDown", 300));
@@ -109,19 +87,6 @@ var def_DataManager = function () {
   _ctor.prototype.saveData = function () {
     localStorage.setItem(this.saveKey, JSON.stringify(this._data));
   };
-  Object.defineProperty(_ctor.prototype, "addDesktop", {
-    get: function () {
-      this._data.isAddDesktop && (this.isToday(this._data.currDay) || (this._data.isAddDesktop = false));
-      return this._data.isAddDesktop;
-    },
-    set: function (t) {
-      this._data.isAddDesktop = t;
-      this._data.currDay = new Date();
-      this.saveData();
-    },
-    enumerable: false,
-    configurable: true
-  });
   _ctor.prototype.isToday = function (t) {
     var e;
     var n = new Date();
@@ -144,68 +109,12 @@ var def_DataManager = function () {
     enumerable: false,
     configurable: true
   });
-  Object.defineProperty(_ctor.prototype, "shareCount", {
-    get: function () {
-      return this._data.shareCount || this._shareCount;
-    },
-    set: function (t) {
-      this._shareCount = t;
-      this._data.shareCount = this._shareCount;
-      this.saveData();
-    },
-    enumerable: false,
-    configurable: true
-  });
   Object.defineProperty(_ctor.prototype, "level", {
     get: function () {
       return this._data.level;
     },
     set: function (t) {
       this._data.level = t;
-      this.saveData();
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(_ctor.prototype, "hearts", {
-    get: function () {
-      return this._data.hearts;
-    },
-    set: function (t) {
-      this._data.hearts = t;
-      this.saveData();
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(_ctor.prototype, "lastHeartRefreshTime", {
-    get: function () {
-      return this._data.lastHeartRefreshTime;
-    },
-    set: function (t) {
-      this._data.lastHeartRefreshTime = t;
-      this.saveData();
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(_ctor.prototype, "lastHeartUpdateTime", {
-    get: function () {
-      return this._data.lastHeartUpdateTime;
-    },
-    set: function (t) {
-      this._data.lastHeartUpdateTime = t;
-      this.saveData();
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Object.defineProperty(_ctor.prototype, "isAddSelf", {
-    get: function () {
-      return this._data.isAddSelf;
-    },
-    set: function (t) {
-      this._data.isAddSelf = t;
       this.saveData();
     },
     enumerable: false,

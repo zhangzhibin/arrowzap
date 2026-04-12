@@ -96,19 +96,6 @@ var def_GameManager$$1 = function () {
     t && $9AppMain.default.UIManager.show($9Enum.ENUM_UI_TYPE.HOME, null, $9Enum.BUNDLE_NAME.LYFRAME);
     $9AppMain.default.UIManager.closeToRemove($9Enum.PACK_GAME_UI_TYPE.MENU, $9Enum.BUNDLE_NAME.SUBGMAE);
   };
-  _ctor.prototype.updateHeart = function (e) {
-    this.heartNum += e;
-    if (this.heartNum <= 0) {
-      $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.PAUSE_TIME);
-      _ctor.instance.overType = 1;
-      if ($9LYUtils.default.instance.isOpenHotGamePage($9Enum.POPULAR_TRIGGER_SOURCE.LOSE_SETTLE_BEFORE, undefined)) {
-        return;
-      }
-      $9AppMain.default.UIManager.open($9Enum.ENUM_UI_TYPE.LOSE, {
-        type: 1
-      }, $9Enum.BUNDLE_NAME.LYFRAME);
-    }
-  };
   _ctor.prototype.changeLevel = function (t) {
     return cc__awaiter(this, undefined, undefined, function () {
       return cc__generator(this, function (e) {

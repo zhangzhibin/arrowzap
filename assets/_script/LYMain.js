@@ -11,7 +11,6 @@ var $9BundleResCfig = require("BundleResCfig");
 var $9Enum = require("Enum");
 var $9LYGameDef = require("LYGameDef");
 var $9GameManager$$1 = require("GameManager");
-var $9LYwechatManager = require("LYwechatManager");
 var $9LYsdkConfig = require("LYsdkConfig");
 var $9LYsdkManager = require("LYsdkManager");
 var $9DataManager = require("DataManager");
@@ -64,26 +63,11 @@ var def_LYMain = function (t) {
             setTimeout(function () {
               $9LYsdkConfig.default.instance.getConfigValByKeyName("front_enter_the_game_interstitial_switch") && $9LYsdkManager.default.instance.apply("showInterstitialAd");
             }, 2e3);
-            this.onHeartIncrease();
-            this.rendorHeartTimer();
             this.onInitToHomeScene();
             return [2];
         }
       });
     });
-  };
-  _ctor.prototype.checkBannerLoadComplete = function () {
-    this.loopNum += 1;
-    if ($9LYwechatManager.default.instance.bannerAd.length > 0 || $9LYwechatManager.default.instance.matrixCustomAd.length > 0) {
-      this.unschedule(this.checkBannerLoadComplete);
-      if ($9LYUtils.default.instance.isOpenHotGamePage($9Enum.POPULAR_TRIGGER_SOURCE.LOADING, undefined)) {
-        return;
-      }
-      this.normalIntoGame();
-    } else if (this.loopNum >= 3) {
-      this.unschedule(this.checkBannerLoadComplete);
-      this.normalIntoGame();
-    }
   };
   _ctor.prototype.normalIntoGame = function () {
     this.loadLyer.active = false;
@@ -98,23 +82,6 @@ var def_LYMain = function (t) {
         var e = this;
         return cc__generator(this, function () {
           $9AppMain.default.soundManager.playMusic();
-          window.wx && window.wx.checkIsAddedToMyMiniProgram({
-            success: function (t) {
-              if (t.added) {
-                if (!$9AppMain.default.localData.isAddSelf) {
-                  $9AppMain.default.localData.isAddSelf = true, $9AppMain.default.localData.hearts += 1;
-                }
-              } else {
-                console.log("小程序未被添加到我的小程序");
-              }
-            },
-            fail: function (t) {
-              console.error("检查失败", t);
-            },
-            complete: function () {
-              console.log("检查完成");
-            }
-          });
           t = $9LYsdkConfig.default.instance.getConfigValByKeyName("direct_enter_level_on_game_start_switch", false);
           $9AppMain.default.resourceManager.loadBundle($9Enum.BUNDLE_NAME.SUBGMAE, $9BundleResCfig.default.instance.FRME_TYPE_GAME, function () {
             return cc__awaiter(e, undefined, undefined, function () {
@@ -130,18 +97,14 @@ var def_LYMain = function (t) {
     });
   };
   _ctor.prototype.handleInToGame = function (t) {
-    if (cc.sys.platform === cc.sys.WECHAT_GAME && $9LYsdkConfig.default.instance.getConfigValByKeyName("front_enable_accidental_touch_mode")) {
-      this.schedule(this.checkBannerLoadComplete, 1, 3, .01);
+    this.loadLyer.active = false;
+    if ($9LYUtils.default.instance.isOpenHotGamePage($9Enum.POPULAR_TRIGGER_SOURCE.LOADING, undefined)) {
+      return;
+    }
+    if (t) {
+      $9GameManager$$1.default.instance.initGame(false);
     } else {
-      this.loadLyer.active = false;
-      if ($9LYUtils.default.instance.isOpenHotGamePage($9Enum.POPULAR_TRIGGER_SOURCE.LOADING, undefined)) {
-        return;
-      }
-      if (t) {
-        $9GameManager$$1.default.instance.initGame(false);
-      } else {
-        this.normalIntoGame();
-      }
+      this.normalIntoGame();
     }
   };
   _ctor.prototype.initYQ = function () {
@@ -166,45 +129,6 @@ var def_LYMain = function (t) {
       }
       cc.Node.prototype.skin = t;
     };
-  };
-  _ctor.prototype.onHeartIncrease = function () {
-    if ($9LYsdkConfig.default.instance.getConfigValByKeyName("front_is_enable_level_power", true) && $9LYsdkConfig.default.instance.getConfigValByKeyName("front_is_enable_countdown_gift_power", true) && $9AppMain.default.localData.hearts < $9AppMain.default.localData.maxHeart) {
-      var t = new Date().getTime();
-      var e = Math.floor((t - $9AppMain.default.localData.lastHeartUpdateTime) / 1e3);
-      var n = Math.floor(e / $9AppMain.default.localData.heartRefreshTime);
-      if ($9AppMain.default.localData.hearts + n >= $9AppMain.default.localData.maxHeart) {
-        $9AppMain.default.localData.hearts = $9AppMain.default.localData.maxHeart;
-        $9AppMain.default.localData.lastHeartRefreshTime = 0;
-        $9AppMain.default.localData.lastHeartUpdateTime = 0;
-      } else if (n <= 0) {
-        $9AppMain.default.localData.lastHeartRefreshTime += e;
-        $9AppMain.default.localData.lastHeartUpdateTime = t;
-      } else {
-        var o = e - n * $9AppMain.default.localData.heartRefreshTime;
-        $9AppMain.default.localData.lastHeartRefreshTime = o;
-        $9AppMain.default.localData.lastHeartUpdateTime = t;
-        $9AppMain.default.localData.hearts += n;
-      }
-    }
-  };
-  _ctor.prototype.rendorHeartTimer = function () {
-    if ($9LYsdkConfig.default.instance.getConfigValByKeyName("front_is_enable_level_power", true) && $9LYsdkConfig.default.instance.getConfigValByKeyName("front_is_enable_countdown_gift_power", true)) {
-      this.unscheduleAllCallbacks();
-      this.schedule(function () {
-        if (!($9AppMain.default.localData.hearts >= $9AppMain.default.localData.maxHeart)) {
-          var t = $9AppMain.default.localData.heartRefreshTime - $9AppMain.default.localData.lastHeartRefreshTime;
-          if ((t -= 1) <= 0) {
-            var e = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_coundown_gift_power_num", 1));
-            $9AppMain.default.localData.hearts += e;
-            $9AppMain.default.localData.hearts >= $9AppMain.default.localData.maxHeart || (t = $9AppMain.default.localData.heartRefreshTime);
-            $9AppMain.default.localData.lastHeartRefreshTime = 0;
-          } else {
-            $9AppMain.default.localData.lastHeartRefreshTime = $9AppMain.default.localData.heartRefreshTime - t;
-          }
-          $9AppMain.default.localData.lastHeartUpdateTime = new Date().getTime();
-        }
-      }, 1);
-    }
   };
   cc__decorate([ccp_property(cc.Node)], _ctor.prototype, "loadLyer", undefined);
   cc__decorate([ccp_property(cc.Node)], _ctor.prototype, "UINode", undefined);

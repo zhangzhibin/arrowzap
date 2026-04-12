@@ -12,7 +12,6 @@ var $9LYsdkConfig = require("LYsdkConfig");
 var $9LYsdkManager = require("LYsdkManager");
 var $9LYUtils = require("LYUtils");
 var $9LYadMethodNameEnum = require("LYadMethodNameEnum");
-var $9LYwechatManager = require("LYwechatManager");
 var $9GameManager$$1 = require("GameManager");
 var $9Enum = require("Enum");
 var $9LYBaseView = require("LYBaseView");
@@ -37,53 +36,14 @@ var def_LYHotGameLayer = function (t) {
   };
   _ctor.prototype.onEnable = function () {
     var t = this;
-    if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-      if (this.node.active) {
-        $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.STOP_AUTO_ROTATE_BANNER), $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_SINGLE_CUSTOM_AD, [false]), $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_CUSTOM_SIDE_AD, [false]), $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_MATRIX_CUSTOM_AD, [false]), $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_SETTLE_MATRIX_CUSTOM_AD, [false]), $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_OTHER_SINGLE_CUSTOM_AD, [false]), this.matrixCustomAds = $9LYwechatManager.default.instance.matrixCustomAd, this.bannerAds = $9LYwechatManager.default.instance.bannerAd, this.matrixCustomAds.length <= 0 && this.bannerAds.length <= 0 ? this._close() : (this.showMatrixCustomAdAct(), this.bannerWuchuAct());
-      }
-    } else {
-      this.scheduleOnce(function () {
-        t._close();
-      }, 1);
-    }
-  };
-  _ctor.prototype.showMatrixCustomAdAct = function () {
-    var t = parseFloat($9LYsdkConfig.default.instance.getConfigValByKeyName("front_popular_mcustom_rtime", 5));
-    this.schedule(this.showMatrixCustomAd, t, cc.macro.REPEAT_FOREVER, .01);
-  };
-  _ctor.prototype.bannerWuchuAct = function () {
-    if (!(this.bannerAds.length <= 0)) {
-      if ($9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.SET_CHANNEL_MOD) && $9LYsdkConfig.default.instance.getConfigValByKeyName("front_remen_banner_switch")) {
-        var t = parseFloat($9LYsdkConfig.default.instance.getConfigValByKeyName("popular_page_banner_flash_interval"));
-        this.schedule(this.showWuchuBannerAds, t, cc.macro.REPEAT_FOREVER, .01);
-      } else {
-        this.btn_jxyx.getComponent(cc.Widget).bottom = 250;
-      }
-    }
-  };
-  _ctor.prototype.showWuchuBannerAds = function () {
-    $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_BANNER_AD, [!this.currStatus, this.currIndex]);
-    this.currStatus = !this.currStatus;
-    this.currStatus || ++this.showNum >= parseInt($9LYsdkConfig.default.instance.getConfigValByKeyName("popular_banner_show_count", 1)) && (++this.currIndex >= this.bannerAds.length && (this.currIndex = 0), this.showNum = 0);
-  };
-  _ctor.prototype.showMatrixCustomAd = function () {
-    var t = this;
-    if ($9LYwechatManager.default.instance.matrixCustomAd.length) {
-      this.mcIndex - 1 < 0 && $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_MATRIX_CUSTOM_AD, [false, this.matrixCustomAds.length - 1]);
-      $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.TOGGLE_MATRIX_CUSTOM_AD, [true, this.mcIndex]);
-      ++this.mcIndex > this.matrixCustomAds.length - 1 && (this.mcIndex = 0);
-    } else {
-      this.scheduleOnce(function () {
-        t.showMatrixCustomAd();
-      }, .5);
-    }
+    this.scheduleOnce(function () {
+      t._close();
+    }, 1);
   };
   _ctor.prototype.onContinueBtnClick = function () {
     $9AppMain.default.soundManager.playClickSound();
     if (++this.btnContinueNum >= $9LYsdkConfig.default.instance.getConfigValByKeyName("popular_page_continue_game_button_clicks", 1)) {
       this.btnContinueNum = 0;
-      this.unschedule(this.showWuchuBannerAds);
-      this.unschedule(this.showMatrixCustomAd);
       this._close();
     }
   };
