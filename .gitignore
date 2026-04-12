@@ -1,0 +1,11 @@
+# Cocos Creator 生成与缓存（勿提交）
+build/
+library/
+temp/
+local/
+
+# 系统与编辑器
+.DS_Store
+*.swp
+*.swo
+Thumbs.db
