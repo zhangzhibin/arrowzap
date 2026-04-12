@@ -19,9 +19,7 @@ var def_LYWinLayer = function (t) {
   function _ctor() {
     var e = null !== t && t.apply(this, arguments) || this;
     e.icon_qx = null;
-    e.btn_fx = null;
     e.btn_xyg = null;
-    e.lbTl = null;
     return e;
   }
   cc__extends(_ctor, t);
@@ -31,9 +29,7 @@ var def_LYWinLayer = function (t) {
   };
   _ctor.prototype.initNode = function () {
     this.icon_qx = this.getChild("icon_qx");
-    this.btn_fx = this.getChild("btn_fx");
     this.btn_xyg = this.getChild("btn_xyg");
-    this.lbTl = this.getChild("lbTl").getComponent(cc.Label);
   };
   _ctor.prototype.onOpend = function () {
     this.addEvent("on");
@@ -43,8 +39,6 @@ var def_LYWinLayer = function (t) {
     $9LYsdkManager.default.instance.apply($9LYadMethodNameEnum.LY_AD_METHOD_NAME.SETTLE_OPERATIONS_FRAMEWORK);
   };
   _ctor.prototype.updateUI = function () {
-    var t = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_level_power_num", 1));
-    this.lbTl.string = "+" + t;
     $9AppMain.default.localData.level += 1;
     $9GameManager$$1.default.instance.enterGameCount += 1;
   };
@@ -53,7 +47,6 @@ var def_LYWinLayer = function (t) {
   };
   _ctor.prototype.addEvent = function (t) {
     this.icon_qx[t]("click", this.handleNext, this);
-    this.btn_fx[t]("click", this.handleShare, this);
     this.btn_xyg[t]("click", this.handleNext, this);
   };
   _ctor.prototype.handleClose = function () {

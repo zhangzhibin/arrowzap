@@ -527,6 +527,7 @@ var def_Line = function (t) {
     }
   };
   _ctor.prototype.errorLine = function () {
+    if (this.isMoveing) return;
     if (!this.isRed) {
       this.node.children.forEach(function (t) {
         cc.Tween.stopAllByTarget(t);

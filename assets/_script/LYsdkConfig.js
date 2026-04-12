@@ -43,32 +43,7 @@ var def_LYsdkConfig = function () {
         };
         return e("");
       }
-      if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
-        t.operate_configs = {
-          app_key: t.app_key,
-          area: null,
-          front_wuchu_scene: "",
-          is_allow_area: false,
-          is_allow_export: false,
-          req_ip: null,
-          req_version: t.version,
-          wuchu_version: t.version,
-          province: [],
-          configs: {}
-        };
-        console.warn("LYSDK：非微信平台使用本地默认配置，跳过服务端配置拉取");
-        return e("");
-      }
       t.operate_configs = t.client_configs.get(cc.sys.platform) || {
-        app_key: t.app_key,
-        area: null,
-        front_wuchu_scene: "",
-        is_allow_area: false,
-        is_allow_export: false,
-        req_ip: null,
-        req_version: t.version,
-        wuchu_version: t.version,
-        province: [],
         configs: {}
       };
       t.getServiceConfigs().then(function (n) {

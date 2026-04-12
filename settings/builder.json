@@ -1,7 +1,7 @@
 {
   "startScene": "936db32a-6175-4036-b657-386ec63fbcb6",
   "title": "ArrowZap",
-  "packageName": "org.cocos2d.demo",
+  "packageName": "com.ccgame.arrowzap",
   "excludeScenes": [],
   "orientation": {
     "landscapeRight": false,
@@ -22,16 +22,16 @@
   "zipCompressJs": true,
   "fb-instant-games": {},
   "android": {
-    "packageName": "org.cocos2d.demo",
+    "packageName": "com.ccgame.arrowzap",
     "REMOTE_SERVER_ROOT": ""
   },
   "ios": {
-    "packageName": "com.arrow.zap",
+    "packageName": "com.ccgame.arrowzap",
     "REMOTE_SERVER_ROOT": "",
     "ios_enable_jit": true
   },
   "mac": {
-    "packageName": "org.cocos2d.demo",
+    "packageName": "com.ccgame.arrowzap",
     "REMOTE_SERVER_ROOT": "",
     "width": 1280,
     "height": 720
@@ -42,7 +42,7 @@
     "height": 720
   },
   "android-instant": {
-    "packageName": "org.cocos2d.demo",
+    "packageName": "com.ccgame.arrowzap",
     "REMOTE_SERVER_ROOT": "",
     "pathPattern": "",
     "scheme": "https",
@@ -51,7 +51,7 @@
     "recordPath": ""
   },
   "harmonyos-next": {
-    "packageName": "org.cocos2d.demo",
+    "packageName": "com.ccgame.arrowzap",
     "REMOTE_SERVER_ROOT": "",
     "jsEngine": "JSVM"
   },
