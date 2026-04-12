@@ -1,5 +1,7 @@
 # iOS 配置覆盖层（与 Cocos 构建产物解耦）
 
+完整说明见仓库文档：**[docs/iOS原生配置.md](../../docs/iOS原生配置.md)**。
+
 Cocos Creator 每次 **构建 iOS** 可能会覆盖 `build/jsb-default/.../proj.ios_mac/ios/` 下的部分文件。  
 把 **希望长期固定的 iOS 配置** 放在本目录，构建完成后执行同步脚本写回工程即可。
 
