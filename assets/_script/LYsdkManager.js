@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var $9LYsdkConfig = require("LYsdkConfig");
-var $9LYwechatManager = require("LYwechatManager");
 var $9LYdefaultMgs = require("LYdefaultMgs");
 var def_LYsdkManager = function () {
   function _ctor() {
@@ -21,11 +20,19 @@ var def_LYsdkManager = function () {
   });
   Object.defineProperty(_ctor.prototype, "platform", {
     get: function () {
-      if (cc.sys.platform == cc.sys.WECHAT_GAME) {
-        return this.model = $9LYwechatManager.default.instance, $9LYwechatManager.default.instance;
-      } else {
+      if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+        try {
+          var t = require("LYwechatManager");
+          return this.model = t.default.instance, t.default.instance;
+        } catch (e) {
+          console.warn("LYsdk: 未找到 LYwechatManager，使用默认空实现");
+          return this.model = $9LYdefaultMgs.default.instance, $9LYdefaultMgs.default.instance;
+        }
+      }
+      if (cc.sys.isBrowser) {
         return this.model = $9LYdefaultMgs.default.instance, $9LYdefaultMgs.default.instance;
       }
+      return this.model = $9LYdefaultMgs.default.instance, $9LYdefaultMgs.default.instance;
     },
     enumerable: false,
     configurable: true
@@ -33,8 +40,16 @@ var def_LYsdkManager = function () {
   _ctor.prototype.setModel = function () {
     if ($9LYsdkConfig.default.instance.debug_mode) {
       this.model = $9LYdefaultMgs.default.instance;
-    } else if (cc.sys.platform == cc.sys.WECHAT_GAME) {
-      this.model = $9LYwechatManager.default.instance;
+    } else if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+      try {
+        var e = require("LYwechatManager");
+        this.model = e.default.instance;
+      } catch (n) {
+        console.warn("LYsdk: 未找到 LYwechatManager，使用默认空实现");
+        this.model = $9LYdefaultMgs.default.instance;
+      }
+    } else if (cc.sys.isBrowser) {
+      this.model = $9LYdefaultMgs.default.instance;
     } else {
       this.model = $9LYdefaultMgs.default.instance;
     }

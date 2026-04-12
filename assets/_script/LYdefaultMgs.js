@@ -47,6 +47,14 @@ var def_LYdefaultMgs = function () {
     undefined === n && (n = false);
   };
   _ctor.prototype.showInterstitialAd = function () {};
+  _ctor.prototype.vibrateShort = function () {};
+  _ctor.prototype.activeShare = function (t, e) {
+    e && e();
+  };
+  _ctor.prototype.showBoxBanner = function () {};
+  _ctor.prototype.showForceVideoAd = function (t) {
+    t && t();
+  };
   _ctor.prototype.toggleOtherSingleCustomAd = function () {};
   _ctor.prototype.toggleCustomSideAd = function () {};
   _ctor.prototype.getOpenId = function () {
@@ -77,7 +85,6 @@ var def_LYdefaultMgs = function () {
     t && t([]);
   };
   _ctor.prototype.setImRankData = function () {};
-  _ctor.prototype.vibrateShort = function () {};
   _ctor.prototype.settleOperationsFramework = function () {};
   _ctor.prototype.toggleMatrixCustomAd = function () {};
   _ctor.prototype.turnToApp = function () {};
@@ -95,13 +102,7 @@ var def_LYdefaultMgs = function () {
   _ctor.prototype.closeAllAd = function () {};
   _ctor.prototype.checkVersion = function () {};
   _ctor.prototype.checkMessage = function () {};
-  _ctor.prototype.activeShare = function (t, e) {
-    e && e();
-  };
-  _ctor.prototype.showBoxBanner = function () {};
-  _ctor.prototype.showForceVideoAd = function (t) {
-    t && t();
-  };
+  _ctor.prototype.vibrateLong = function () {};
   _ctor._instance = null;
   return _ctor;
 }();

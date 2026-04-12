@@ -27,10 +27,11 @@ var def_LYUtils = function () {
     return true;
   };
   _ctor.prototype.isOpenHotGamePage = function (t, e, n) {
-    if ($9LYsdkManager.default.instance.model.settleMatrixCustomAd.length <= 0) {
+    var o = $9LYsdkManager.default.instance.model;
+    if (!o || !o.settleMatrixCustomAd || o.settleMatrixCustomAd.length <= 0) {
       return false;
     }
-    if (!cc.sys.WECHAT_GAME || !$9LYsdkConfig.default.instance.getConfigValByKeyName("front_enable_accidental_touch_mode")) {
+    if (!$9LYsdkConfig.default.instance.getConfigValByKeyName("front_enable_accidental_touch_mode")) {
       return false;
     }
     if (t == $9LYEnum.POPULAR_TRIGGER_SOURCE.LOADING && !$9LYsdkConfig.default.instance.getConfigValByKeyName("front_show_fullscreen_ad_on_hotpage")) {

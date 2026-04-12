@@ -28,6 +28,7 @@ exports.LY_AD_METHOD_NAME = undefined;
   t.GET_IMRANK_LIST = "getImRankList";
   t.SET_IM_RANK_DATA = "setImRankData";
   t.VIBRATE_SHORT = "vibrateShort";
+  t.VIBRATE_LONG = "vibrateLong";
   t.SETTLE_OPERATIONS_FRAMEWORK = "settleOperationsFramework";
   t.TOGGLE_MATRIX_CUSTOM_AD = "toggleMatrixCustomAd";
   t.TURN_TO_APP = "turnToApp";
