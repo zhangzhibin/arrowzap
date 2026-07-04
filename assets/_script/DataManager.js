@@ -14,6 +14,8 @@ var def_DataManager = function () {
     this.maxHeart = 5;
     this.heartRefreshTime = 0;
     this.status = $9Enum.ENUM_GAME_STATUS.UNRUNING;
+    this.isAddSelf = false;
+    this._initialized = false;
     this._data = {
       currDay: new Date(),
       isNewUser: true,
@@ -76,16 +78,60 @@ var def_DataManager = function () {
     this.heartRefreshTime = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_enable_time_countDown", 300));
     this.maxHeart = Number($9LYsdkConfig.default.instance.getConfigValByKeyName("front_countdown_power_min_limit", 4));
   };
+  _ctor.prototype._isCloudAvailable = function () {
+    return typeof tt !== "undefined" && tt.getUserCloudStorage && tt.setUserCloudStorage && "localhost" !== window.location.hostname;
+  };
   _ctor.prototype.initData = function () {
+    if (this._initialized) return;
+    this._initialized = true;
     var t = localStorage.getItem(this.saveKey);
     if (t) {
       this._data = JSON.parse(t);
+      console.log("[Data] 从本地加载");
     } else {
       localStorage.setItem(this.saveKey, JSON.stringify(this._data));
+      console.log("[Data] 本地无数据，初始化默认值");
+    }
+    if (this._isCloudAvailable()) {
+      console.log("[Data] 检测到云端可用，尝试拉取...");
+      var e = this;
+      tt.getUserCloudStorage({
+        keyList: [this.saveKey],
+        success: function (t) {
+          if (t.KVDataList && t.KVDataList.length > 0) {
+            var n = t.KVDataList[0].value;
+            if (n) {
+              e._data = JSON.parse(n);
+              localStorage.setItem(e.saveKey, n);
+              console.log("[Data] 云端数据已覆盖本地");
+            }
+          } else {
+            console.log("[Data] 云端无数据，保持本地");
+          }
+        },
+        fail: function () {
+          console.log("[Data] 云端拉取失败，保持本地");
+        }
+      });
+    } else {
+      console.log("[Data] 云端不可用，仅使用本地存储");
     }
   };
   _ctor.prototype.saveData = function () {
-    localStorage.setItem(this.saveKey, JSON.stringify(this._data));
+    var t = JSON.stringify(this._data);
+    localStorage.setItem(this.saveKey, t);
+    if (this._isCloudAvailable()) {
+      var e = this;
+      tt.setUserCloudStorage({
+        KVDataList: [{ key: e.saveKey, value: t }],
+        success: function () {
+          console.log("[Data] 云端保存成功");
+        },
+        fail: function () {
+          console.log("[Data] 云端保存失败");
+        }
+      });
+    }
   };
   _ctor.prototype.isToday = function (t) {
     var e;

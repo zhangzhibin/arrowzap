@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 var $9LYsdkConfig = require("LYsdkConfig");
 var $9LYdefaultMgs = require("LYdefaultMgs");
+var $9LYtiktokManager = require("LYtiktokManager");
 var def_LYsdkManager = function () {
   function _ctor() {
     this.model = null;
@@ -29,7 +30,9 @@ var def_LYsdkManager = function () {
     configurable: true
   });
   _ctor.prototype.setModel = function () {
-    if ($9LYsdkConfig.default.instance.debug_mode) {
+    if (typeof tt !== "undefined") {
+      this.model = $9LYtiktokManager.default.instance;
+    } else if ($9LYsdkConfig.default.instance.debug_mode) {
       this.model = $9LYdefaultMgs.default.instance;
     } else {
       this.model = $9LYdefaultMgs.default.instance;

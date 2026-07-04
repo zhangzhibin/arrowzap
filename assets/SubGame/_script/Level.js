@@ -93,7 +93,6 @@ var def_Level = function (t) {
           var i = cc.instantiate(t.linePrefab);
           i.parent = t.list;
           i.name = e.toString();
-          console.log("[Level.initLevel] Creating line " + e + " with segments:", n);
           i.getComponent($9Line.default).setData(n, t.posList);
         }, .02 * e);
       };
@@ -236,6 +235,8 @@ var def_Level = function (t) {
   _ctor.prototype._findArrowAtPoint = function (cellX, cellY) {
     // 找到点击位置对应的单元格索引
     var n = $9GameManager$$1.default.instance.curLevelConfig.width;
+    var i = $9GameManager$$1.default.instance.curLevelConfig.height;
+    if (cellX < 0 || cellX >= n || cellY < 0 || cellY >= i) return -1;
     var cellIndex = cellY * n + cellX;
 
     // 查找哪个箭头包含这个单元格
@@ -281,20 +282,16 @@ var def_Level = function (t) {
   _ctor.prototype.handleEnd = function (t) {
     var e;
     this.pinchActive = false;
-    console.log("[Level.handleEnd] TOUCH_END in capture phase");
     // 拖动/缩放时，阻止事件传递到箭头，避免误触
     if (this.isMove) {
-      console.log("[Level.handleEnd] isMove=true, stopping propagation");
       t.stopPropagation();
       return;
     }
     if (!this.canInteract) {
-      console.log("[Level.handleEnd] canInteract=false, stopping propagation");
       t.stopPropagation();
       return;
     }
     if (this.createLineNum < this.levelData.length) {
-      console.log("[Level.handleEnd] not all lines created, stopping propagation");
       this.handleTips();
       t.stopPropagation();
       return;
@@ -307,28 +304,21 @@ var def_Level = function (t) {
     var o = t.getLocation();
     var r = this.list.parent.convertToNodeSpaceAR(o);
     var centerCell = this.pixelToCellIndex(r.x, r.y);
-    var cellX = centerCell % $9GameManager$$1.default.instance.curLevelConfig.width;
-    var cellY = Math.floor(centerCell / $9GameManager$$1.default.instance.curLevelConfig.width);
+    var cellY = centerCell[0];
+    var cellX = centerCell[1];
     var a = this.findNearbyFlyableArrow(r.x, r.y, cellX, cellY);
-    console.log("[Level.handleEnd] findNearbyFlyableArrow result:", a);
     if (!(a < 0)) {
       // 第一步：找到可飞出的箭头
-      console.log("[Level.handleEnd] flyable arrow found at index:", a);
       // 阻止事件继续传递，Level 直接处理
-      console.log("[Level.handleEnd] handling arrow and stopping propagation");
       t.stopPropagation();
       this._handleArrowByIndex(a);
     } else {
       // 第二步：没找到可飞出的箭头，检查是否直接点击了某个箭头
-      console.log("[Level.handleEnd] no flyable arrow found - checking for direct arrow click at cell [" + cellX + "," + cellY + "]");
       var clickedArrowIndex = this._findArrowAtPoint(cellX, cellY);
       if (clickedArrowIndex >= 0) {
-        console.log("[Level.handleEnd] direct arrow click detected at index:", clickedArrowIndex);
-        console.log("[Level.handleEnd] handling directly clicked arrow");
         t.stopPropagation();
         this._handleArrowByIndex(clickedArrowIndex);
       } else {
-        console.log("[Level.handleEnd] no arrow clicked, allowing event to propagate");
       }
     }
   };
@@ -442,16 +432,12 @@ var def_Level = function (t) {
   };
   _ctor.prototype.handleArrowClickedFromLine = function (t, e) {
     // 箭头本身的点击事件回调
-    console.log("[Level.handleArrowClickedFromLine] called, arrowIndex:", t);
     if (!this.canInteract) {
-      console.log("[Level.handleArrowClickedFromLine] canInteract=false, returning");
       return;
     }
     if (e.isOver || e.flying || e.isMoveing) {
-      console.log("[Level.handleArrowClickedFromLine] arrow in invalid state, returning");
       return;
     }
-    console.log("[Level.handleArrowClickedFromLine] proceeding with collision detection");
     e.canFlyOut = this.canArrowFly(t);
     e.flying = true;
     var n = this.levelData[t];
@@ -459,7 +445,6 @@ var def_Level = function (t) {
     var o = this.getForwardIndices(n[0], i);
     var r = this.findFirstBlockedPointWithFlying(o, t);
     if (-1 !== r.idx) {
-      console.log("[Level.handleArrowClickedFromLine] collision detected at index:", r.idx);
       var a = o.indexOf(r.idx);
       var c = o.slice(0, a + 1);
       e.handleError(c, r);
@@ -469,7 +454,6 @@ var def_Level = function (t) {
         if (l) l.errorLine();
       }
     } else {
-      console.log("[Level.handleArrowClickedFromLine] no collision, arrow can pass");
       this.createPoint(e.itemList);
       e.handlePass();
     }
@@ -507,9 +491,7 @@ var def_Level = function (t) {
     var a = i / 2 * o;
     var c = Math.floor((t - r) / o);
     var s = Math.floor((a - e) / o);
-    c = cc.misc.clampf(c, 0, n - 1);
-    s = cc.misc.clampf(s, 0, i - 1);
-    return s * n + c;
+    return [s, c];
   };
   _ctor.prototype.neighborIndex = function (t, e) {
     var n = $9GameManager$$1.default.instance.curLevelConfig.width;

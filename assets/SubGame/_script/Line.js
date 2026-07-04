@@ -37,16 +37,12 @@ var def_Line = function (t) {
       this.itemList = t;
       this.originalItemList = t.slice();
       this.createLine(t);
-      console.log("[Line.setData] Registering TOUCH_END handler for line node:", this.node.name);
       // 为箭头节点添加点击事件监听（Level的capture阶段会优先处理可飞出的箭头）
       var n = this;
       this.node.on(cc.Node.EventType.TOUCH_END, function (t) {
-        console.log("[Line.TOUCH_END] arrow node clicked, isOver:", n.isOver, "flying:", n.flying, "isMoveing:", n.isMoveing);
         if (n.isOver || n.flying || n.isMoveing) {
-          console.log("[Line.TOUCH_END] arrow is in invalid state, returning");
           return;
         }
-        console.log("[Line.TOUCH_END] calling handleArrowClick");
         n.handleArrowClick();
       }, this);
     }
@@ -54,7 +50,6 @@ var def_Line = function (t) {
   _ctor.prototype.createLine = function (t) {
     var e = this;
     if (t && t.length) {
-      console.log("[Line.createLine] Creating line with", t.length, "segments");
       var n = 0;
       var i = function (i) {
         var r = t[i - 1];
@@ -174,34 +169,26 @@ var def_Line = function (t) {
   };
   _ctor.prototype.handleArrowClick = function () {
     // 点击事件处理：让箭头飞出（由 Level 的碰撞检测逻辑决定是成功还是错误）
-    console.log("[Line.handleArrowClick] called");
     var t = $9GameManager$$1.default.instance;
     var e = t.curLevelConfig;
     if (!e) {
-      console.log("[Line.handleArrowClick] no curLevelConfig");
       return;
     }
     var n = this.node.parent;
     if (!n) {
-      console.log("[Line.handleArrowClick] no parent");
       return;
     }
     // 获取这个箭头在 levelData 中的索引
     var i = parseInt(this.node.name);
     if (isNaN(i)) {
-      console.log("[Line.handleArrowClick] invalid node name");
       return;
     }
-    console.log("[Line.handleArrowClick] arrow index:", i);
     // 触发 Level 的碰撞检测和处理
     // 需要告知 Level 这个箭头被点击了
     var o = this.node.parent.parent;
-    console.log("[Line.handleArrowClick] parent.parent:", o ? "found" : "not found");
     if (o) {
       var r = o.getComponent("Level");
-      console.log("[Line.handleArrowClick] Level component:", r ? "found" : "not found");
       if (r) {
-        console.log("[Line.handleArrowClick] calling handleArrowClickedFromLine");
         r.handleArrowClickedFromLine(i, this);
       }
     }
@@ -430,16 +417,12 @@ var def_Line = function (t) {
               if (!e.isRed) {
                 $9GameManager$$1.default.instance.heartNum--;
                 if ($9GameManager$$1.default.instance.heartNum <= 0) {
-                  console.log("[Line.handleError] heartNum <= 0, opening LOSE UI");
                   $9AppMain.default.eventManager.emit($9LYEventName.LYEventName.PAUSE_TIME);
                   $9GameManager$$1.default.instance.overType = 1;
                   var hotGameOpen = $9LYUtils.default.instance.isOpenHotGamePage($9Enum.POPULAR_TRIGGER_SOURCE.LOSE_SETTLE_BEFORE, undefined);
-                  console.log("[Line.handleError] isOpenHotGamePage result:", hotGameOpen);
                   if (hotGameOpen) {
-                    console.log("[Line.handleError] Hot game page opened, returning");
                     return;
                   }
-                  console.log("[Line.handleError] Opening LOSE UI");
                   $9AppMain.default.UIManager.open($9Enum.ENUM_UI_TYPE.LOSE, {
                     type: 1
                   }, $9Enum.BUNDLE_NAME.LYFRAME);

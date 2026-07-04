@@ -89,7 +89,6 @@ var def_ResourceManager = function () {
               }
             case 1:
               this.AMgrBundle.set(e, c);
-              console.log("加载", n);
               return [4, this.loadDirRes(c, n, e, r)];
             case 2:
               o.sent();
@@ -165,7 +164,6 @@ var def_ResourceManager = function () {
       return cc__generator(this, function (i) {
         switch (i.label) {
           case 0:
-            console.warn("resource", e);
             if (!(e && e.length > 0)) {
               return [3, 5];
             }
